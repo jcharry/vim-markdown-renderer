@@ -13,3 +13,4 @@ preview rendering of your markdown.
   npm install -g vim-markdown-renderer
   ```
 
+![Example](https://raw.githubusercontent.com/jcharry/vim-markdown-renderer/master/example.png)
