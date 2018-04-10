@@ -2,6 +2,6 @@
 .babelrc
 .npmrc
 App.js
-index.html
+/index.html
 package-lock.json
 webpack.config.js
