@@ -1,9 +1,9 @@
 const webpack = require('webpack');
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin'); //installed via npm
-
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
+  mode: 'production',
   entry: ['babel-polyfill', './App.js'],
   output: {
     path: path.resolve(__dirname, 'dist'),

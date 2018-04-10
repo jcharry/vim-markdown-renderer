@@ -1,6 +1,7 @@
 const io = require('socket.io')();
 const path = require('path');
 const fs = require('fs');
+const config = require('../config');
 
 io.on('connection', (client) => {
   client.on('init', (path) => {
@@ -23,6 +24,4 @@ io.on('connection', (client) => {
   });
 });
 
-const SOCKET = 8525;
-
-io.listen(SOCKET);
+io.listen(config.SOCKET_PORT);

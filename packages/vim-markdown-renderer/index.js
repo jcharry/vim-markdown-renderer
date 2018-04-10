@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { spawn, exec } = require('child_process');
 const program = require('commander');
+const config = require('./config');
 
 program
   .version('0.1.0')
@@ -24,7 +25,6 @@ const isPortOpen = (port, fn) => {
       })
       .once('listening', function() {
         tester.once('close', function() {
-          console.log('will resolve');
           resolve(port);
         }).close()
       })
@@ -36,8 +36,19 @@ let attempts = 0;
 const openPort = () => {
   attempts++;
   let port = basePort + Math.floor(Math.random() * 1000);
+  isPortOpen(config.SOCKET_PORT).then(() => {
+    spawn(
+      'node', [ `${__dirname}/socket/server.js`],
+      { detached: true },
+      (err, stdout, stderr) => {
+        console.log(err, stdout, stderr);
+      }
+    );
+  }).catch(err => {
+    console.log('socket server already running');
+  });
+
   isPortOpen(port).then(() => {
-    console.log('opening port', port, file);
     spawn(
       'node', [ `${__dirname}/server.js`, `--file`, `${file}`, `--PORT`, `${port}` ],
       { detached: true },
