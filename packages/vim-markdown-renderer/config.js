@@ -1,3 +1,3 @@
 module.exports = {
-  SOCKET_PORT: 8525
+  SOCKET_PORT: 8239
 };

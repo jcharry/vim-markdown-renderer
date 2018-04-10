@@ -1,6 +1,6 @@
 {
-  "name": "markdown-renderer",
-  "version": "1.0.0",
+  "name": "vim-markdown-renderer",
+  "version": "1.0.1",
   "description": "",
   "main": "App.js",
   "preferGlobal": true,
@@ -11,7 +11,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
     "build": "webpack --config webpack.config.js",
-    "watch": "webpack --watch"
+    "watch": "webpack --watch",
+    "prepack": "npm run build"
   },
   "keywords": [],
   "author": "",

@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 const fs = require('fs');
 const path = require('path');
-const { spawn, exec } = require('child_process');
+const { spawn, spawnSync, exec } = require('child_process');
 const program = require('commander');
 const config = require('./config');
 
@@ -15,12 +15,11 @@ program
 const file = program.file || path.resolve(__dirname, 'default.md');
 const basePort = 9723;
 
-const isPortOpen = (port, fn) => {
+const isPortAvailable = (port, fn) => {
   return new Promise((resolve, reject) => {
     const net = require('net')
     const tester = net.createServer()
       .once('error', function (err) {
-        console.log('port had an error', err);
         reject(err);
       })
       .once('listening', function() {
@@ -33,31 +32,33 @@ const isPortOpen = (port, fn) => {
 }
 
 let attempts = 0;
+let isSocketOpen = false;
 const openPort = () => {
   attempts++;
   let port = basePort + Math.floor(Math.random() * 1000);
-  isPortOpen(config.SOCKET_PORT).then(() => {
-    spawn(
-      'node', [ `${__dirname}/socket/server.js`],
-      { detached: true },
-      (err, stdout, stderr) => {
-        console.log(err, stdout, stderr);
-      }
-    );
-  }).catch(err => {
-    console.log('socket server already running');
-  });
+  if (!isSocketOpen) {
+    isSocketOpen = true;
+    isPortAvailable(config.SOCKET_PORT).then(() => {
+      let socket = spawn('node', [ `${__dirname}/socket/server.js`], {
+        detached: true,
+        stdio: 'ignore'
+      });
 
-  isPortOpen(port).then(() => {
-    spawn(
-      'node', [ `${__dirname}/server.js`, `--file`, `${file}`, `--PORT`, `${port}` ],
-      { detached: true },
-      (err, stdout, stderr) => {
-        console.log(err, stdout, stderr);
-      }
-    );
+      socket.unref();
+    }).catch(err => {
+      console.log('socket server already running');
+    });
+  }
+
+  isPortAvailable(port).then(() => {
+    console.log(`serving md file on localhost:${port}`);
+    let server = spawn('node', [ `${__dirname}/server.js`, `--file`, `${file}`, `--PORT`, `${port}` ], {
+      detached: true,
+      stdio: 'ignore'
+    });
+
+    server.unref();
     exec(`open http://localhost:${port}`);
-    return;
   }).catch((err) => {
     if (attempts < 5) {
       openPort();
@@ -65,4 +66,5 @@ const openPort = () => {
   });
 }
 
+// Kick the whole thing off
 openPort();
